@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Header from "./Header"; // Assuming Header is in the same directory or adjust path
+import  { useEffect, useState } from "react";
+ // Assuming Header is in the same directory or adjust path
 import ProductCard from "../components/ProductList"; // Adjusted path based on your ProductCard.jsx location
 import { useSearchParams, Link } from "react-router-dom"; // Import Link for "browse entire collection"
 

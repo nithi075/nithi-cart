@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCertificate, faBriefcase } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';

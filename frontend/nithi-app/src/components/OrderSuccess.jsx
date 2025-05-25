@@ -1,6 +1,6 @@
 // src/pages/OrderSuccess.jsx
 
-import React, { useEffect } from 'react';
+import  { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 // Helper function for IST formatting
