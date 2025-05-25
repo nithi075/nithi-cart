@@ -12,7 +12,11 @@ const order = require('./routes/order');
 
 connectDatabase();
  app.use(express.json());
- app.use(cors())
+ app.use(cors({
+  origin: 'https://your-frontend-name.onrender.com', // Replace with your actual frontend URL from Render
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'], // Specify allowed methods
+  credentials: true // If your frontend sends cookies or authorization headers
+}));
  app.use('/api/v1/',products);
  app.use('/api/v1/',order);
 
