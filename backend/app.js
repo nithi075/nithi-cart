@@ -1,15 +1,36 @@
 const express = require('express');
 const app = express();
+<<<<<<< HEAD
 const dotenv = require('dotenv');
 const path = require('path');
 const cors = require('cors');
 const connectDatabase = require('./config/connectDatabase');
+=======
+// const dotenv = require('dotenv'); // <--- You might not need this line if only using Render's env vars
+const path = require('path')
+const cors = require('cors')
+const connectDatabase = require('./config/connectDatabase')
+
+// REMOVE or COMMENT OUT THIS LINE FOR RENDER DEPLOYMENTS:
+// dotenv.config({path: path.join(__dirname,'config','config.env')});
+>>>>>>> 4131090cb707344ad7b30410dedca97f979abf4e
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, 'config', 'config.env') });
 
 // Connect to database
 connectDatabase();
+<<<<<<< HEAD
+=======
+app.use(express.json());
+app.use(cors({
+    origin: 'https://nithi-cart-front.onrender.com', // Replace with your actual frontend URL from Render
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
+    credentials: true
+}));
+app.use('/api/v1/', products);
+app.use('/api/v1/', order);
+>>>>>>> 4131090cb707344ad7b30410dedca97f979abf4e
 
 // Middlewares
 app.use(express.json());
@@ -19,6 +40,7 @@ app.use(cors({
   credentials: true
 }));
 
+<<<<<<< HEAD
 // Test API root
 app.get('/', (req, res) => {
   res.send('API is working 🚀');
@@ -38,3 +60,8 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT, () => {
   console.log(`Server listening to Port ${process.env.PORT} in ${process.env.NODE_ENV}`);
 });
+=======
+app.listen(process.env.PORT, () => {
+    console.log(`Server listening to Port ${process.env.PORT} in ${process.env.NODE_ENV}`)
+})
+>>>>>>> 4131090cb707344ad7b30410dedca97f979abf4e
