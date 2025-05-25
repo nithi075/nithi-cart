@@ -1,8 +1,6 @@
-// src/components/Cart.jsx
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
-import  { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -108,59 +106,75 @@ export default function Cart({ cart, setCart }) {
 
             const productId = getProductId(item.product);
             if (!productId) {
-                 console.error("Failed to get a valid product ID for item:", item.product);
-                 toast.error(`Failed to get product ID for ${item.product.name || 'an item'}. Please refresh.`);
-                 return null; // Mark as invalid
+                console.error("Failed to get a valid product ID for item:", item.product);
+                toast.error(`Failed to get product ID for ${item.product.name || 'an item'}. Please refresh.`);
+                return null; // Mark as invalid
             }
 
             return {
-                product: productId,                  // Send product ID as a string, matching your DB schema
-                name: item.product.name,             // Send product name (String)
+                product: productId,         // Send product ID as a string, matching your DB schema
+                name: item.product.name,    // Send product name (String)
                 price: parseFloat(item.product.price), // Send product price (Number)
-                quantity: item.qty,                  // Send quantity (Number), matching 'quantity' in DB
-                size: item.size || null,             // Include size if applicable (String or null)
+                quantity: item.qty,         // Send quantity (Number), matching 'quantity' in DB
+                size: item.size || null,    // Include size if applicable (String or null)
             };
         }).filter(Boolean); // Remove any null items (invalid ones)
 
         if (orderDataForBackend.length === 0) {
-            toast.error("No valid items to process for the order. Please ensure your cart items are complete.");
+            toast.error("No valid items to process for the order. Please ensure your cart items are complete and refresh if needed.");
             return;
         }
 
-        // console.log("Final payload to backend:", {
-        //     cartItems: orderDataForBackend,
-        //     amount: total.toFixed(2),
-        //     customerInfo: {
-        //         name: customerName,
-        //         address: customerAddress,
-        //         phone: customerPhone,
-        //     }
-        // });
+        const payload = {
+            cartItems: orderDataForBackend,
+            amount: total.toFixed(2), // Send amount as a string to match your DB schema (if it's a string type)
+            customerInfo: {
+                name: customerName,
+                address: customerAddress,
+                phone: customerPhone,
+            }
+        };
 
+        console.log("Attempting to send payload to backend:", JSON.stringify(payload, null, 2));
+
+
+        let loadingToastId = null; // Declare here so it's accessible in finally block
 
         try {
-            const loadingToastId = toast.loading("Processing your order...");
+            loadingToastId = toast.loading("Processing your order...");
 
             const response = await fetch('http://localhost:8000/api/v1/order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    cartItems: orderDataForBackend,
-                    amount: total.toFixed(2), // Send amount as a string to match your DB schema
-                    customerInfo: {
-                        name: customerName,
-                        address: customerAddress,
-                        phone: customerPhone,
-                    }
-                }),
+                body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
-            toast.dismiss(loadingToastId);
+            console.log("Backend response received. Status:", response.status);
 
-            if (response.ok && data.success) {
+            // Check if response is not OK early to handle network/server errors more gracefully
+            if (!response.ok) {
+                let errorData = {};
+                try {
+                    errorData = await response.json();
+                } catch (jsonError) {
+                    console.error("Failed to parse error response JSON:", jsonError);
+                    // If JSON parsing fails, the body might be plain text or empty
+                    errorData.message = `Server responded with status ${response.status} but no readable error message.`;
+                }
+
+                toast.dismiss(loadingToastId); // Dismiss loading toast on error
+                const errorMessage = errorData.message || `Failed to confirm order. Server responded with status: ${response.status}. Please check your backend.`;
+                toast.error(errorMessage);
+                console.error("Order confirmation failed (server responded with error):", errorData);
+                return; // Stop execution if response was not ok
+            }
+
+            const data = await response.json();
+            toast.dismiss(loadingToastId); // Dismiss loading toast on success or final failure
+
+            if (data.success) {
                 toast.success("Order confirmed successfully! Thank you for your purchase.");
 
                 // --- Extract values correctly from backend response (handling $oid and $date) ---
@@ -178,10 +192,10 @@ export default function Cart({ cart, setCart }) {
                 // This is vital because the backend's saved structure is authoritative.
                 const itemsForSuccessPage = data.order.cartItems.map(item => ({
                     _id: getProductId(item.product), // Product ID from the DB's cartItem
-                    name: item.name,                  // Product Name from the DB's cartItem
-                    qty: item.quantity,               // Quantity from the DB's cartItem (DB uses 'quantity')
-                    size: item.size || null,          // Size from the DB's cartItem
-                    price: item.price,                // Price from the DB's cartItem
+                    name: item.name,                // Product Name from the DB's cartItem
+                    qty: item.quantity,             // Quantity from the DB's cartItem (DB uses 'quantity')
+                    size: item.size || null,        // Size from the DB's cartItem
+                    price: item.price,              // Price from the DB's cartItem
                 }));
 
                 setCart([]); // Clear the cart on successful order
@@ -196,19 +210,27 @@ export default function Cart({ cart, setCart }) {
                         createdAt: receivedCreatedAt, // This is the UTC string from DB
                         orderedItems: itemsForSuccessPage,
                         totalAmount: parseFloat(data.order.amount), // Parse amount back to float for frontend display
-                        customerDetails: data.order.customerInfo,   // Pass customerInfo directly
+                        customerDetails: data.order.customerInfo,    // Pass customerInfo directly
                     }
                 });
 
             } else {
-                const errorMessage = data.message || "Failed to confirm order. Please try again.";
+                // This block handles cases where response.ok is true, but data.success is false
+                const errorMessage = data.message || "Failed to confirm order due to an unexpected server response. Please try again.";
                 toast.error(errorMessage);
-                console.error("Order confirmation failed:", data);
+                console.error("Order confirmation failed (data.success was false):", data);
             }
         } catch (error) {
+            // This catch block handles network errors, CORS errors, or any error before response.json()
+            console.error("Error during order confirmation fetch:", error);
             toast.dismiss(loadingToastId); // Dismiss loading toast on network error
-            toast.error("Network error or server unavailable. Please try again later.");
-            console.error("Error during order confirmation:", error);
+            if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                toast.error("Network error: Could not connect to the server. Please ensure your backend is running.");
+            } else if (error.message.includes("Unexpected token < in JSON at position 0")) {
+                toast.error("Server returned non-JSON response. This might be a backend error page or CORS issue.");
+            } else {
+                toast.error("An unexpected error occurred during order confirmation. Please check console for details.");
+            }
         }
     };
 
