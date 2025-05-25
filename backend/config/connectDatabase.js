@@ -4,7 +4,7 @@ const connectDatabase = () => {
     // --- TEMPORARY: HARDCODED DATABASE URI FOR DEBUGGING ONLY ---
     // You MUST replace this with your actual, full MongoDB Atlas connection string.
     // Ensure the password (if it has a period '.') is URL-encoded as '%2E'.
-    const hardcodedDbUri = 'mongodb+srv://nithiish495:9884973235%2Enithi@nithish.scg7e1e.mongodb.net/mini-ecommerce?retryWrites=true&w=majority&appName=Nithish';
+    const hardcodedDbUri = 'mongodb+srv://nithiish495:9884973235@nithish.scg7e1e.mongodb.net/mini-ecommerce?retryWrites=true&w=majority&appName=Nithish';
 
     mongoose.connect(hardcodedDbUri) // Use the hardcoded URI here
         .then(() => {
