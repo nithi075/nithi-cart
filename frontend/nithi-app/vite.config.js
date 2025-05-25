@@ -8,5 +8,13 @@ export default defineConfig({
     jsxInject: `import React from 'react'`,
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
+  },
+  build: {
+    outDir: 'dist', // Ensures the output folder is correctly set
+    rollupOptions: {
+    input: 'src/main.jsx' // Ensures entry point is correct
+    }
   }
+});
+
 })
