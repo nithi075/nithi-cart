@@ -17,7 +17,7 @@ export default function Shop() {
             try {
                 // The URLSearchParams object directly converts to a query string when concatenated
                 // e.g., if searchParams has { keyword: "shirt" }, this becomes "?keyword=shirt"
-                const url = `http://localhost:8000/api/v1/products?${searchParams.toString()}`;
+                const url = `https://nithi-cart.onrender.com/api/v1/products?${searchParams.toString()}`;
                 
                 const response = await fetch(url);
                 const data = await response.json();

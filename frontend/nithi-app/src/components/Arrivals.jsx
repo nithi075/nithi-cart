@@ -18,7 +18,7 @@ export default function Arrivals() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('http://localhost:8000/api/v1/products'); // Replace with your API endpoint
+        const response = await fetch('https://nithi-cart.onrender.com/api/v1/products'); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
