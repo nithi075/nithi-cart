@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import the CSS
 
 // Import all your components
 import Header from './components/Header.jsx';
-import Hero from './components/hero.jsx';
+import Hero from './components/Hero.jsx';
 import Footer from './components/Footer.jsx';
 import Shop from './components/Shop.jsx';
 import Blog from './components/Blog.jsx';
